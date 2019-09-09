@@ -1,6 +1,8 @@
 <template>
   <div id="app">
-    <Camera :on-scanned="onScanned" :is-active="panelState === 'normal'" />
+    <Camera
+      :onScanned="onScanned"
+      :isActive="panelState === 'normal' || panelState === 'getting-token'" />
     <CheckedPanel
       v-if="panelState === 'checked'"
       :onChecked="onChecked"
@@ -13,6 +15,11 @@
     <ErrorPanel
       v-if="panelState === 'error'"
       :onChecked="onChecked" />
+    <ConnectionPanel
+      v-if="panelState === 'connecting'"
+      :setPerformance="setPerformance"
+      :token="token"
+      :onDenied="() => { panelState = 'getting-token' }" />
   </div>
 </template>
 
@@ -21,7 +28,7 @@ import Camera from '@/components/Camera.vue'
 import CheckedPanel from '@/components/CheckedPanel.vue'
 import ConfirmPanel from '@/components/ConfirmPanel.vue'
 import ErrorPanel from '@/components/ErrorPanel.vue'
-import { setTimeout } from 'timers';
+import ConnectionPanel from '@/components/ConnectionPanel.vue'
 
 export default {
   name: 'app',
@@ -29,17 +36,25 @@ export default {
     Camera,
     CheckedPanel,
     ConfirmPanel,
-    ErrorPanel
+    ErrorPanel,
+    ConnectionPanel
   },
   data() {
     return {
       approvedSeats: [],
-      panelState: 'normal',
-      currentSeat: null
+      panelState: 'getting-token',
+      currentSeat: null,
+      performance: {},
+      token: ''
     }
   },
   methods: {
     onScanned(data) {
+      if (this.panelState === 'getting-token') {
+        this.token = data
+        this.panelState = 'connecting'
+        return
+      }
       let seat
       try {
         seat = JSON.parse(data)
@@ -49,7 +64,12 @@ export default {
         return
       }
       this.currentSeat = seat
-      if (!seat.type) {
+      if (!seat.type ||
+          !this.performance.seats[seat.seatIndex] ||
+          this.performance.seats[seat.seatIndex].id !== seat.id ||
+          this.performance.seats[seat.seatIndex].type !== seat.type ||
+          (this.performance.seats[seat.seatIndex].name &&
+           this.performance.seats[seat.seatIndex].name !== seat.name)) {
         this.panelState = 'error'
         return
       }
@@ -66,6 +86,10 @@ export default {
       this.panelState = 'checked'
     },
     onChecked() {
+      this.panelState = 'normal'
+    },
+    setPerformance(performance) {
+      this.performance = performance
       this.panelState = 'normal'
     }
   }
