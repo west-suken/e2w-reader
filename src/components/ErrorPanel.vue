@@ -20,7 +20,7 @@ div {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(231, 76, 60, 0.6);
+  background-color: rgba(231, 76, 60, 0.8);
   font-size: 30px;
   color: white;
   display: flex;

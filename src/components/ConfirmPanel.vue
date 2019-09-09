@@ -4,7 +4,7 @@
     <button @click="toggle">{{ label }}</button>
     <section v-if="showName">
       {{ name }}<br />
-      <button @click="onApproved">承認</button>
+      <button @click="onApproved(currentSeat)">承認</button>
       <button @click="onDenied">拒否</button>
     </section>
   </div>
@@ -49,7 +49,7 @@ div {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(241, 196, 15, 0.6);
+  background-color: rgba(241, 196, 15, 0.8);
   font-size: 30px;
   color: white;
   display: flex;

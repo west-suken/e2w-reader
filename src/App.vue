@@ -73,6 +73,11 @@ export default {
         this.panelState = 'error'
         return
       }
+      if (this.approvedSeats
+        .filter(_seat => _seat.seatIndex === seat.seatIndex).length > 0) {
+        console.log('already scanned')
+        return
+      }
       if (seat.type === 'line') {
         this.onApproved(seat)
         return
